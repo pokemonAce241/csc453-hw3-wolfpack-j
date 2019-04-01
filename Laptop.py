@@ -6,7 +6,6 @@ import time
 import ibmiotf.application
 import uuid
 
-from
 
 client = None
 
@@ -40,7 +39,7 @@ except ibmiotf.ConnectionException as e:
 	print e
 
 app = Flask(__name__)
-port = 8080
+port = os.getenv('VCAP_APP_PORT','5000')
 
 
 @app.route('/')
