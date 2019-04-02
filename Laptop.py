@@ -8,6 +8,8 @@ import uuid
 
 
 client = None
+deviceid = os.getenv("DEVICE_ID")
+vcap = json.loads(os.getenv("VCAP_SERVICES"))
 
 def myCommandCallback(cmd):
 	if cmd.event == "Door":
@@ -62,8 +64,7 @@ def hello():
 				
 
 @app.route('/doorStatus',methods=['POST'])
-def door_route():
-	
+def door_route():	
 	return redirect("/",code=302)
 		
 	
