@@ -3,22 +3,6 @@
 
 import os
 
-directory = os.fsencode("./data/")
-
-openThreshold = 8
-closeThreshold = -5
-global startIndex, endIndex
-isCloseData = False
-
-for file in os.listdir(directory):
-     filename = os.fsdecode(file)
-     if filename.endswith("_open_sample.csv") or filename.endswith("_close_sample.csv"):
-        if ( filename.endswith("_close_sample.csv") ):
-            isCloseData = True
-        print("opening file: " + filename)
-        originalFile = open(filename)
-        strippedFile = open(filename + ".stripped.csv", w)
-        stripData(originalFile, strippedFile)
 
 def stripData(input, output):
     allLines = input.readlines()
@@ -34,10 +18,28 @@ def stripData(input, output):
     endIndex = -1
     for y in allGyroYValues:
         # if the data is door closed data, then we make sure the y value is below the close threshold
-        if isCloseData and y < closeThreshold:
+        if isCloseData and float(y) < closeThreshold:
             print(y)
             output.write(y + ",")
         # if the data is door open data, then we make sure the y value is above the door open threshold    
-        elif not isCloseData and y > openThreshold:
+        elif not isCloseData and float(y) > openThreshold:
             print(y)
             output.write(y + ",")
+
+
+directory = os.fsencode("./data/")
+
+openThreshold = 8
+closeThreshold = -5
+global startIndex, endIndex
+isCloseData = False
+
+for file in os.listdir(directory):
+     filename = os.fsdecode(file)
+     if filename.endswith("_open_sample.csv") or filename.endswith("_close_sample.csv"):
+        if ( filename.endswith("_close_sample.csv") ):
+            isCloseData = True
+        print("opening file: " + filename)
+        originalFile = open("./data/" + filename)
+        strippedFile = open("./strippedData/" + filename + ".stripped.csv", "w")
+        stripData(originalFile, strippedFile)
