@@ -3,16 +3,19 @@
 
 import os
 
-directory = os.fsencode(".")
+directory = os.fsencode("./data/")
 
 openThreshold = 8
 closeThreshold = -5
-
-
+global startIndex, endIndex
+isCloseData = False
 
 for file in os.listdir(directory):
      filename = os.fsdecode(file)
-     if filename.endswith("open_sample.csv") or filename.endswith("close_sample.csv"):
+     if filename.endswith("_open_sample.csv") or filename.endswith("_close_sample.csv"):
+        if ( filename.endswith("_close_sample.csv") ):
+            isCloseData = True
+        print("opening file: " + filename)
         originalFile = open(filename)
         strippedFile = open(filename + ".stripped.csv", w)
         stripData(originalFile, strippedFile)
@@ -27,9 +30,14 @@ def stripData(input, output):
         allGyroYValues.append(values[4])
 
     # find the first value that goes above the threshold
+    startIndex = -1
+    endIndex = -1
     for y in allGyroYValues:
-
-
-    # find the last value that is above the threshold
-
-    # print out all of the values in between these two to the output file
+        # if the data is door closed data, then we make sure the y value is below the close threshold
+        if isCloseData and y < closeThreshold:
+            print(y)
+            output.write(y + ",")
+        # if the data is door open data, then we make sure the y value is above the door open threshold    
+        elif not isCloseData and y > openThreshold:
+            print(y)
+            output.write(y + ",")
