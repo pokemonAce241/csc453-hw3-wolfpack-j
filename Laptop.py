@@ -41,8 +41,8 @@ try:
 	client.deviceEventCallback = myCommandCallback
 	client.subscribeToDeviceEvents(event="Door")
 	
-	while(True):
-	  time.sleep(0.2);
+	#while(True):
+	 # time.sleep(0.2);
 	
 except ibmiotf.ConnectionException as e:
 	print e
