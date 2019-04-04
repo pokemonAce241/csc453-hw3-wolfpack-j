@@ -1,80 +1,64 @@
-from flask import Flask,redirect
-from flask import renter_template
-from flask import request
-import os, json
 import time
+import json
 import ibmiotf.application
-import uuid
 
+import datetime
+
+# for handling CTRL+C
+import signal
+
+# for getting command line arguments
+import sys, getopt
 
 client = None
-deviceid = os.getenv("DEVICE_ID")
-vcap = json.loads(os.getenv("VCAP_SERVICES"))
 
-status = "Door Closed"
-timeCommand = 0
+def main():
+    global client
+    # register the signal handler
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    try:
+        options = {
+            "org": "sat52l",
+            "id": "therpi",
+            "auth-method": "apikey",
+            "auth-key": "a-sat52l-fdaspx5lja",
+            "auth-token": "dC8TO5j?ol8jUgVlJe"
+        }
 
-def myCommandCallback(cmd):
-	if cmd.event == "Door":
-		payload = json.loads(cmd.payload)
-		command = payload["DoorStatus"]
-		print cmd.timestamp
-		print command
-		status = command
-		timeCommand = cmd.timestamp
-		
-try:
-	options = {
-		"org": "5gt44o",
-		"id": "TheRaspberryPi",
-		"type": "standalone",
-		"auth-method": "apikey",
-		"auth-key": "a-5gt44o-8aw5vum4gz",
-		"auth-token": "PliZTzoS8?8euK!oPq"
-	}
-	
-	
-	
-	client = ibmiotf.application.Client(options)
-	client.connect()
-	
-	client.deviceEventCallback = myCommandCallback
-	client.subscribeToDeviceEvents(event="Door")
-	
-	#while(True):
-	 # time.sleep(0.2);
-	
-except ibmiotf.ConnectionException as e:
-	print e
+        client = ibmiotf.application.Client(options)
+        client.connect()
+        client.deviceEventCallback = deviceEventCallback
+        client.subscribeToDeviceEvents(event="doorStatus")
+        print("Connected to IBM Cloud!!")
 
-app = Flask(__name__)
-port = os.getenv('VCAP_APP_PORT','5000')
+    except ibmiotf.ConnectionException  as e:
+        print(e)
+    print("starting the loop")
+    loop()
+    
 
+def deviceEventCallback(event):
+    if event.event == "doorStatus":
+        payload = json.loads(event.payload)
+        status = payload["status"]
+        print(str(datetime.datetime.now()) + " STATUS: " + status)
 
-@app.route('/')
-def hello():
-	return '<!doctype html>\n
-			<html>
-				<head>
-				<title>DoorStatus App</title>
-				</head>
-				<body>
-					<h1>Python App</h1>
-									
-					<p> {{status}} </p>
-					<p>time: {{timeCommand}} </p>
-					
+def loop():
+        time.sleep(0.5)
 
-				</body>
-			</html>'
-				
+def clean_up():
+    global client
+    print("cleaning up")
+    if client:
+        client.disconnect()
 
-#@app.route('/doorStatus',methods=['POST'])
-#def door_route():	
-	#return redirect("/",code=302)
-		
-	
-
+# handle CTRL+C
+def signal_handler(sig, frame):
+    print("ending")
+    clean_up()
+    sys.exit(0)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=int(port))
+    main()
+
