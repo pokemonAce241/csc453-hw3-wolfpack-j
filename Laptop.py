@@ -11,21 +11,26 @@ client = None
 deviceid = os.getenv("DEVICE_ID")
 vcap = json.loads(os.getenv("VCAP_SERVICES"))
 
+status = "Door Closed"
+timeCommand = 0
+
 def myCommandCallback(cmd):
 	if cmd.event == "Door":
 		payload = json.loads(cmd.payload)
 		command = payload["DoorStatus"]
 		print cmd.timestamp
 		print command
+		status = command
+		timeCommand = cmd.timestamp
 		
 try:
 	options = {
-		"org": "6bo0a9",
-		"id": "b827ebfd2234",
-		"type": "RaspberryPi",
-		"auth-method": "use-token-auth",
-		"auth-key": "a-6bo0a9-rr5emggjzj",
-		"auth-token": "HLdHTy9mO5TaFGu9lQ"
+		"org": "5gt44o",
+		"id": "TheRaspberryPi",
+		"type": "standalone",
+		"auth-method": "apikey",
+		"auth-key": "a-5gt44o-8aw5vum4gz",
+		"auth-token": "PliZTzoS8?8euK!oPq"
 	}
 	
 	
@@ -55,19 +60,18 @@ def hello():
 				</head>
 				<body>
 					<h1>Python App</h1>
-					<br />
-					<form action="/doorStatus" methods="POST">
-						<input name="message" type="text" placeholder="Door Closed">
-					</form>
-					<br />
+									
+					<p> {{status}} </p>
+					<p>time: {{timeCommand}} </p>
+					
 
 				</body>
 			</html>'
 				
 
-@app.route('/doorStatus',methods=['POST'])
-def door_route():	
-	return redirect("/",code=302)
+#@app.route('/doorStatus',methods=['POST'])
+#def door_route():	
+	#return redirect("/",code=302)
 		
 	
 
