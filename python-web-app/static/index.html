@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wolfpack J Door Status</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <script>
+    setTimeout(function() {
+      fetch("/door-status")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(json) {
+          var statusEl = document.getElementById("status");
+          statusEl.innerText = json['status'];
+          var timeEl = document.getElementById("status-time");
+          timeEl.innerText = json['time'];
+        });
+      fetch("/last-received-data")
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(json) {
+          var gyroEl = document.getElementById("gyro");
+          gyroEl.innerText = json['gyroY'];
+          var timeEl = document.getElementById("gyro-time");
+          timeEl.innerText = json['time'];
+        });
+    }, 100); // run in 100 milliseconds
+  </script>
+  <h1>Wolfpack J's Amazing Door Monitor</h1>
+  <h2>by Jason Benckert, Cameron Finley, Stanton Parham, Weirui Wang<h2>
+  <h3>Last Received Gyro Y Value</h3>
+  <p id="gyro"></p>
+  <p id="gyro-time"></p>
+
+  <h3>Last Published Decision</h3>
+  <p id="status"></p>
+  <p id="status-time"></p>
+</body>
+</html>

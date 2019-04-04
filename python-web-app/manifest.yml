@@ -1,0 +1,7 @@
+---
+applications:
+ - name: wolfpack-j-success
+   random-route: true
+   memory: 128M
+   services:
+    - wolfpack-j-iot
