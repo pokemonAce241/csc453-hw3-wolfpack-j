@@ -5,6 +5,7 @@ import os
 
 
 def stripData(input, output):
+    global isCloseData
     allLines = input.readlines()
     # get all of the gyroY values
     allGyroYValues = []
@@ -22,9 +23,10 @@ def stripData(input, output):
             print(y)
             output.write(y + ",")
         # if the data is door open data, then we make sure the y value is above the door open threshold    
-        elif not isCloseData and float(y) > openThreshold:
-            print(y)
-            output.write(y + ",")
+        else:
+            if float(y) > openThreshold:
+                print(y)
+                output.write(y + ",")
 
 
 directory = os.fsencode("./data/")
