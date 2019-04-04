@@ -16,11 +16,11 @@ def main():
     global client
     # register the signal handler
     signal.signal(signal.SIGINT, signal_handler)
-    
+
     try:
         options = {
             "org": "sat52l",
-            "id": "therpi",
+            "id": "laptop",
             "auth-method": "apikey",
             "auth-key": "a-sat52l-fdaspx5lja",
             "auth-token": "dC8TO5j?ol8jUgVlJe"
@@ -36,16 +36,22 @@ def main():
         print(e)
     print("starting the loop")
     loop()
-    
+
 
 def deviceEventCallback(event):
     if event.event == "doorStatus":
         payload = json.loads(event.payload)
         status = payload["status"]
-        print(str(datetime.datetime.now()) + " STATUS: " + status)
+        server_time = payload["time"]
+        print("---------------------------------")
+        print("SERVER TIME: " + server_time)
+        print("LOCAL TIME:  " + str(datetime.datetime.now()))
+        print("STATUS: " + status)
+        print("---------------------------------")
 
 def loop():
-        time.sleep(0.5)
+    while True:
+        time.sleep(0.1)
 
 def clean_up():
     global client
@@ -61,4 +67,3 @@ def signal_handler(sig, frame):
 
 if __name__ == "__main__":
     main()
-
