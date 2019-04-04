@@ -5,7 +5,7 @@ import os
 import random
 
 
-def stripDataClose(input, output):
+def stripDataClose(input):
     allLines = input.readlines()
     # get all of the gyroY values
     allGyroYValues = []
@@ -15,8 +15,6 @@ def stripDataClose(input, output):
         allGyroYValues.append(values[4])
 
     # find the first value that goes above the threshold
-    startIndex = -1
-    endIndex = -1
     array = []
     for y in allGyroYValues:
         if float(y) < closeThreshold:
@@ -25,11 +23,12 @@ def stripDataClose(input, output):
         index = random.randint(0, len(array) - 2)
         array[index] = (array[index] + array[index + 1]) / 2
         del array[index + 1]
-    for y in array:
-        output.write(str(y) + ",")
+    # for y in array:
+    #     output.write(str(y) + ",")
+    return array
 
 
-def stripDataOpen(input, output):
+def stripDataOpen(input):
     allLines = input.readlines()
     # get all of the gyroY values
     allGyroYValues = []
@@ -39,8 +38,6 @@ def stripDataOpen(input, output):
         allGyroYValues.append(values[4])
 
     # find the first value that goes above the threshold
-    startIndex = -1
-    endIndex = -1
     array = []
     for y in allGyroYValues:
         if float(y) > openThreshold:
@@ -49,23 +46,40 @@ def stripDataOpen(input, output):
         index = random.randint(0, len(array) - 2)
         array[index] = (array[index] + array[index + 1]) / 2
         del array[index + 1]
-    for y in array:
-        output.write(str(y) + ",")
+    # for y in array:
+    #     output.write(str(y) + ",")
+    return array
+
+
+def print2DArray(file, array):
+    for row in array:
+        line = ",".join(map(str, row))
+        file.write(line + "\n")
 
 directory = os.fsencode("./data/")
 
 openThreshold = 8
 closeThreshold = -5
-global startIndex, endIndex
 isCloseData = False
 
+combinedOpenFile = open("./combinedData/open_samples.csv", "w")
+combinedCloseFile = open("./combinedData/close_samples.csv", "w")
+
+open_rows_samples = []
+close_rows_samples = []
+
 for file in os.listdir(directory):
-     filename = os.fsdecode(file)
-     if filename.endswith("_open_sample.csv") or filename.endswith("_close_sample.csv"):
-        print("opening file: " + filename)
-        originalFile = open("./data/" + filename)
-        strippedFile = open("./strippedData/" + filename + ".stripped.csv", "w")
-        if ( filename.endswith("_close_sample.csv") ):
-            stripDataClose(originalFile, strippedFile)
-        else:
-            stripDataOpen(originalFile, strippedFile)
+    filename = os.fsdecode(file)
+    print("opening file: " + filename)
+    originalFile = open("./data/" + filename)
+    if filename.endswith("_open_sample.csv"):
+        array = stripDataOpen(originalFile)
+        print(array)
+        open_rows_samples.append(array)
+    elif filename.endswith("_close_sample.csv"):
+        array = stripDataClose(originalFile)
+        print(array)
+        close_rows_samples.append(array)
+
+print2DArray(combinedOpenFile, open_rows_samples)
+print2DArray(combinedCloseFile, close_rows_samples)
