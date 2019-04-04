@@ -2,10 +2,10 @@
 # Run this directly in the data directory
 
 import os
+import random
 
 
-def stripData(input, output):
-    global isCloseData
+def stripDataClose(input, output):
     allLines = input.readlines()
     # get all of the gyroY values
     allGyroYValues = []
@@ -17,17 +17,40 @@ def stripData(input, output):
     # find the first value that goes above the threshold
     startIndex = -1
     endIndex = -1
+    array = []
     for y in allGyroYValues:
-        # if the data is door closed data, then we make sure the y value is below the close threshold
-        if isCloseData and float(y) < closeThreshold:
-            print(y)
-            output.write(y + ",")
-        # if the data is door open data, then we make sure the y value is above the door open threshold    
-        else:
-            if float(y) > openThreshold:
-                print(y)
-                output.write(y + ",")
+        if float(y) < closeThreshold:
+            array.append(float(y))
+    while len(array) > 10:
+        index = random.randint(0, len(array) - 2)
+        array[index] = (array[index] + array[index + 1]) / 2
+        del array[index + 1]
+    for y in array:
+        output.write(str(y) + ",")
 
+
+def stripDataOpen(input, output):
+    allLines = input.readlines()
+    # get all of the gyroY values
+    allGyroYValues = []
+
+    for line in allLines:
+        values = line.split(",")
+        allGyroYValues.append(values[4])
+
+    # find the first value that goes above the threshold
+    startIndex = -1
+    endIndex = -1
+    array = []
+    for y in allGyroYValues:
+        if float(y) > openThreshold:
+            array.append(float(y))
+    while len(array) > 10:
+        index = random.randint(0, len(array) - 2)
+        array[index] = (array[index] + array[index + 1]) / 2
+        del array[index + 1]
+    for y in array:
+        output.write(str(y) + ",")
 
 directory = os.fsencode("./data/")
 
@@ -39,9 +62,10 @@ isCloseData = False
 for file in os.listdir(directory):
      filename = os.fsdecode(file)
      if filename.endswith("_open_sample.csv") or filename.endswith("_close_sample.csv"):
-        if ( filename.endswith("_close_sample.csv") ):
-            isCloseData = True
         print("opening file: " + filename)
         originalFile = open("./data/" + filename)
         strippedFile = open("./strippedData/" + filename + ".stripped.csv", "w")
-        stripData(originalFile, strippedFile)
+        if ( filename.endswith("_close_sample.csv") ):
+            stripDataClose(originalFile, strippedFile)
+        else:
+            stripDataOpen(originalFile, strippedFile)
